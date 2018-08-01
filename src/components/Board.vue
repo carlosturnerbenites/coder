@@ -27,7 +27,7 @@
     </div>
 
     <div>
-      <Checkbox v-model="toPlan">Checkbox</Checkbox>
+      <Checkbox v-model="toPlan">Planear</Checkbox>
     </div>
 
     <div>
@@ -80,7 +80,7 @@
             <ul v-if="plan">
               <li
                 v-for="(movement, index) in plan.movements"
-                :class="{complete: movement.complete, incomplete: !movement.complete}"
+                :class="{executed: movement.executed}"
                 :key="`movement_${index}`"
               >
                 {{movement.action}}
@@ -142,9 +142,22 @@ export default {
       plans: {
         default: new Plan({
           movements: [
-            {action: 'forward'},
-            {action: 'forward'},
-            {action: 'forward'},
+            /*
+            {
+              action: 'while',
+              // condition: 'ORIENTATION !== 0',
+              condition: {prop: 'orientation', op: 'diff', value: 270},
+              fn: 'turnRight'
+            },
+            */
+            // {action: 'if', condition: 'ORIENTATION !== 0', fn: 'forward'},
+
+            {action: 'repeat', count: 3, fn: 'forward'},
+
+            // {action: 'forward'},
+            // {action: 'forward'},
+            // {action: 'forward'},
+
             {action: 'turnLeft'},
             {action: 'forward'},
             {action: 'collect'},
@@ -222,6 +235,9 @@ export default {
   text-decoration: line-through;
 }
 .complete {
+  background-color: green;
+}
+.executed {
   background-color: green;
 }
 </style>

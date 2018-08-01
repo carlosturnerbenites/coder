@@ -5,6 +5,12 @@ export default class Plan {
     if (Array.isArray(config.movements)) movements = config.movements
 
     this.movements = movements;
+
+    this.setDefaultStateMovements()
+  }
+
+  setDefaultStateMovements () {
+    this.movements.forEach(r => r.executed = false)
   }
 
   addMovement(movement) {
@@ -21,20 +27,62 @@ export default class Plan {
 
   execute (board) {
     let baseTime = 1000
+    let time = 1000
     this.movements.forEach((movement, index) => {
-      let time = baseTime * (index + 1)
+      if (movement.executed) return
+      time += baseTime
 
-      if (movement.action === 'collect') {
-        window.setTimeout(() => board.collect(), time)
+      if (movement.action === 'repeat') {
+        for (let i = 0; i < movement.count; i++) {
+          window.setTimeout(() => board[movement.fn](), time)
+          time += baseTime
+        }
+        window.setTimeout(() => { movement.executed = true }, time)
+      } else if (movement.action === 'while') {
+        let condition
+        if (movement.condition.op === 'diff') {
+          console.log('movement.condition.prop', board.robot[movement.condition.prop])
+          condition = board.robot[movement.condition.prop] !== movement.condition.value
+        }
+        let countLoops = 0
+        while (condition) {
+          window.setTimeout(() => {
+            board[movement.fn]()
+            if (movement.condition.op === 'diff') {
+              console.log('movement.condition.prop', board.robot[movement.condition.prop])
+              condition = board.robot[movement.condition.prop] !== movement.condition.value
+              console.log('condition', condition)
+            }
+          }, time)
+          time += baseTime
+          if (countLoops > 50) break
+          countLoops += 1
+        }
+      } else if (movement.action === 'collect') {
+        window.setTimeout(() => {
+          board.collect()
+          movement.executed = true
+        }, time)
       } else if (movement.action === 'turnRight') {
-        window.setTimeout(() => board.turnRight(), time)
+        window.setTimeout(() => {
+          board.turnRight()
+          movement.executed = true
+        }, time)
       } else if (movement.action === 'turnLeft') {
-        window.setTimeout(() => board.turnLeft(), time)
+        window.setTimeout(() => {
+          board.turnLeft()
+          movement.executed = true
+        }, time)
       } else if (movement.action === 'forward') {
-        window.setTimeout(() => board.forward(), time)
+        window.setTimeout(() => {
+          board.forward()
+          movement.executed = true
+        }, time)
       } else {
         throw new Error('movement unkown')
       }
+      // movement.executed = true
+      console.log('time', time)
     });
   }
 
