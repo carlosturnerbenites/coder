@@ -7,7 +7,7 @@ export default class Board {
     this.height = height;
     this.width = width;
 
-    this.robot = new Robot(0, 0);
+    this.robot = new Robot(0, 0, 0);
 
     this.history = []
     this.scene = null
@@ -40,9 +40,8 @@ export default class Board {
     } else {
       throw new Error('Bad format param position')
     }
-
-    if (this.matrix[x] === undefined) throw new Error('outside index matrix')
-    if (this.matrix[x][y] === undefined) throw new Error('outside index matrix')
+    if (this.matrix[x] === undefined) throw new Error(`outside index matrix. (${x}, y)}`)
+    if (this.matrix[x][y] === undefined) throw new Error(`outside index matrix. (${x}, ${y})`)
 
     return this.matrix[x][y]
 
@@ -81,18 +80,56 @@ export default class Board {
   collect () {
     try {
       let position = this.robot.getPosition()
-      console.log(position)
       let box = this.getBox(position)
       let gift = box.getGift()
       if (gift) {
         this.robot.addGift()
-        this.history.push({ action: 'collect', canont: false })
+        this.history.push({ action: 'collect', position: this.robot.getPosition(), canont: false })
       } else {
-        this.history.push({ action: 'collect', canont: true })
+        this.history.push({ action: 'collect', position: this.robot.getPosition(), canont: true })
       }
     } catch (error) {
       console.warn(error)
     }
+  }
+  forward () {
+    let playload = {
+      action: 'forward',
+      position: {},
+      canont: false
+    }
+    if (this.canForward()) {
+      playload.position.before = this.robot.getPosition()
+      this.robot.forward()
+      playload.position.after = this.robot.getPosition()
+      this.history.push(playload)
+    } else {
+      playload.canont = true
+      this.history.push(playload)
+    }
+  }
+  turnLeft () {
+    let playload = {
+      action: 'turn',
+      orientation: {},
+      canont: false
+    }
+    playload.orientation.before = this.robot.orientation
+    this.robot.turnLeft()
+    playload.orientation.after = this.robot.orientation
+    this.history.push(playload)
+  }
+  turnRight () {
+    let playload = {
+      action: 'turn',
+      orientation: {},
+      canont: false
+    }
+
+    playload.orientation.before = this.robot.orientation
+    this.robot.turnRight()
+    playload.orientation.after = this.robot.orientation
+    this.history.push(playload)
   }
   loadScene (scene) {
     this.scene = scene

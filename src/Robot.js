@@ -1,5 +1,5 @@
 export default class Robot {
-  constructor(x, y) {
+  constructor(x, y, orientation = null) {
     this.UP = 90
     this.DOWN = 270
     this.LEFT = 180 // Izq
@@ -7,7 +7,7 @@ export default class Robot {
 
     this.x = x;
     this.y = y;
-    this.orientation = this.UP
+    this.orientation = typeof orientation === 'number' ? orientation : this.UP
     this.gifts = []
 
     /*
@@ -57,9 +57,6 @@ export default class Robot {
     }
 
     return position
-  }
-  collect () {
-    let position = this.getPosition()
   }
   forward () {
     let position = this.getPositionForward()

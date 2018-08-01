@@ -2,8 +2,9 @@
   <div
     class="board"
     @keyup.up="forward"
-    @keyup.left="turnLeft()"
-    @keyup.right="turnRight()"
+    @keyup.left="turnLeft"
+    @keyup.right="turnRight"
+    @keyup.enter="collect"
   >
     <div
       v-for="(row, index) in board.matrix"
@@ -25,41 +26,70 @@
       </div>
     </div>
 
-    <Button type="primary" @click="turnLeft"> Derecha </Button>
-    <Button type="primary" @click="turnRight"> Izquierda </Button>
-    <Button type="primary" @click="forward"> Adelante </Button>
-    <Button type="primary" @click="collect"> Recoger </Button>
-    <Button type="primary" @click="evaluate"> Evaluar Escenario </Button>
-
     <div>
-      <ul>
-        <li
-          v-for="(item, index) in board.history"
-          :class="{canont: item.canont}"
-          :key="`index_${index}`"
-        >
-          {{item.action}}
-          <span v-if="item.action === 'turn'">
-            {{item.orientation.after}}
-          </span>
-        </li>
-      </ul>
+      <Checkbox v-model="toPlan">Checkbox</Checkbox>
     </div>
 
     <div>
-      <ul v-if="scene">
-        <li
-          v-for="(rule, index) in scene.rules"
-          :class="{complete: rule.complete, incomplete: !rule.complete}"
-          :key="`rule_${index}`"
-        >
-          {{rule.name}}
-          <span v-if="rule.name === 'arrive'">
-            {{rule.position}}
-          </span>
-        </li>
-      </ul>
+      <Button type="primary" @click="turnLeft"> Derecha </Button>
+      <Button type="primary" @click="turnRight"> Izquierda </Button>
+      <Button type="primary" @click="forward"> Adelante </Button>
+      <Button type="primary" @click="collect"> Recoger </Button>
+      <Button type="primary" @click="evaluate"> Evaluar Escenario </Button>
+      <Button type="primary" @click="execute"> Ejecutar Plan </Button>
     </div>
+
+    <Row>
+        <Col span="8">
+          <h4>Historial</h4>
+          <div>
+            <ul>
+              <li
+                v-for="(item, index) in board.history"
+                :class="{canont: item.canont}"
+                :key="`index_${index}`"
+              >
+                {{item.action}}
+                <span v-if="item.action === 'turn'">
+                  {{item.orientation.after}}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </Col>
+        <Col span="8">
+          <h4>Escenario</h4>
+          <div>
+            <ul v-if="scene">
+              <li
+                v-for="(rule, index) in scene.rules"
+                :class="{complete: rule.complete, incomplete: !rule.complete}"
+                :key="`rule_${index}`"
+              >
+                {{rule.name}}
+                <span v-if="rule.name === 'arrive'">
+                  {{rule.position}}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </Col>
+        <Col span="8">
+          <h4>Plan</h4>
+          <div>
+            <ul v-if="plan">
+              <li
+                v-for="(movement, index) in plan.movements"
+                :class="{complete: movement.complete, incomplete: !movement.complete}"
+                :key="`movement_${index}`"
+              >
+                {{movement.action}}
+              </li>
+            </ul>
+          </div>
+        </Col>
+    </Row>
+
   </div>
 </template>
 
@@ -70,6 +100,7 @@ import Box from './Box.vue'
 
 import Board from './../Board.js'
 import Scene from './../Scene.js'
+import Plan from './../Plan.js'
 
 export default {
   name: 'Board',
@@ -87,11 +118,15 @@ export default {
     return {
       board: new Board(this.height, this.width),
       scene: null,
+      plan: null,
+      toPlan: true,
       scenes: {
         default: new Scene({
-          obstacles: [[1,1], [1,2], [2,2], [3,5], [4,2]],
+          obstacles: [[1,1], [1,2], [2,2], [3,4], [4,2]],
           gifts: [[1,3, 20], [3,4, 30]],
           rules: [
+            // points:min
+            // gift:min
             {name: 'arrive', position: {x:1, y:3}},
             {name: 'movements:min', q: 2},
             {name: 'movements:max', q: 10},
@@ -103,6 +138,23 @@ export default {
             ]}
           ]
         })
+      },
+      plans: {
+        default: new Plan({
+          movements: [
+            {action: 'forward'},
+            {action: 'forward'},
+            {action: 'forward'},
+            {action: 'turnLeft'},
+            {action: 'forward'},
+            {action: 'collect'},
+            {action: 'forward'},
+            {action: 'forward'},
+            {action: 'forward'},
+            {action: 'turnRight'},
+            {action: 'forward'},
+          ]
+        })
       }
     }
   },
@@ -110,48 +162,39 @@ export default {
     onClickBox (box) {
     },
     collect () {
-      this.board.collect()
+      if (this.toPlan) {
+
+      } else {
+        this.board.collect()
+      }
     },
     evaluate () {
       this.board.evaluate()
     },
+    execute () {
+      this.plans.default.execute(this.board)
+    },
     forward () {
-      let playload = {
-        action: 'forward',
-        position: {},
-        canont: false
-      }
-      if (this.board.canForward()) {
-        playload.position.before = this.board.robot.getPosition()
-        this.board.robot.forward()
-        playload.position.after = this.board.robot.getPosition()
-        this.board.history.push(playload)
+      if (this.toPlan) {
+        this.plan.addMovement('forward')
       } else {
-        playload.canont = true
-        this.board.history.push(playload)
+        this.board.forward()
       }
+
     },
     turnLeft () {
-      let playload = {
-        action: 'turn',
-        orientation: {},
-        canont: false
+      if (this.toPlan) {
+        this.plan.addMovement('turnLeft')
+      } else {
+        this.board.turnLeft()
       }
-      playload.orientation.before = this.board.robot.orientation
-      this.board.robot.turnLeft()
-      playload.orientation.after = this.board.robot.orientation
-      this.board.history.push(playload)
     },
     turnRight () {
-      let playload = {
-        action: 'turn',
-        orientation: {},
-        canont: false
+      if (this.toPlan) {
+        this.plan.addMovement('turnRight')
+      } else {
+        this.board.turnRight()
       }
-      playload.orientation.before = this.board.robot.orientation
-      this.board.robot.turnRight()
-      playload.orientation.after = this.board.robot.orientation
-      this.board.history.push(playload)
     },
     loadScene (scene) {
       this.scene = scene
@@ -164,6 +207,8 @@ export default {
   mounted () {
     // this.board.robot.to(1,2)
     this.loadScene(this.scenes.default)
+    this.plan = this.plans.default
+
   },
 }
 </script>

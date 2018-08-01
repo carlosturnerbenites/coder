@@ -40,13 +40,20 @@ export default class Scene {
         rule.route.forEach(r => {
           let actionState = false
           if (r.action === 'arrive') {
-            console.log('route', 'action', 'arrive')
+            actionState = state = history
+              .filter(h => h.action === 'forward' && h.canont === false)
+              .some(h => {
+                return h.position.after.x === r.position.x &&
+                  h.position.after.y === r.position.y
+              })
           }
           if (r.action === 'collect') {
-            console.log('route', 'action', 'collect')
-          }
-          if (r.action === 'arrive') {
-            console.log('route', 'action', 'arrive')
+            actionState = state = history
+              .filter(h => h.action === 'collect' && h.canont === false)
+              .some(h => {
+                return h.position.x === r.position.x &&
+                  h.position.y === r.position.y
+              })
           }
           statesRules.push(actionState)
         })
