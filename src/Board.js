@@ -1,5 +1,6 @@
 import Box from './Box.js'
 import Robot from './Robot.js'
+import Gift from './Gift.js'
 
 export default class Board {
   constructor(height, width) {
@@ -9,6 +10,7 @@ export default class Board {
     this.robot = new Robot(0, 0);
 
     this.history = []
+    this.scene = null
 
     this.matrix = []
 
@@ -65,5 +67,46 @@ export default class Board {
         console.warn(error)
       }
     })
+  }
+  setGifts (positions) {
+    positions.forEach(position => {
+      try {
+        let box = this.getBox(position)
+        box.addGift(new Gift(position[0], position[1], position[2]))
+      } catch (error) {
+        console.warn(error)
+      }
+    })
+  }
+  collect () {
+    try {
+      let position = this.robot.getPosition()
+      console.log(position)
+      let box = this.getBox(position)
+      let gift = box.getGift()
+      if (gift) {
+        this.robot.addGift()
+        this.history.push({ action: 'collect', canont: false })
+      } else {
+        this.history.push({ action: 'collect', canont: true })
+      }
+    } catch (error) {
+      console.warn(error)
+    }
+  }
+  loadScene (scene) {
+    this.scene = scene
+    this.setObstacles(scene.obstacles)
+    this.setGifts(scene.gifts)
+  }
+  evaluate () {
+    if (this.scene) {
+      this.scene.evaluate(this.history)
+    } else {
+      throw new Error('scene not loaded')
+    }
+  }
+  clearScene () {
+    this.scene = null
   }
 }

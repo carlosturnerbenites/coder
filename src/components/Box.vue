@@ -7,6 +7,15 @@
     <span v-if="robotIsHere">
       <Robot :robot="robot"></Robot>
     </span>
+    <div>
+      <span
+        class="gift"
+        v-for="gift in box.gifts"
+        :key="`gift_${gift.x}_${gift.y}`"
+      >
+      {{gift.points}}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -61,5 +70,14 @@ export default {
   }
   .obstacle {
     background-color: black
+  }
+  .gift {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-color: red;
+    text-align: center;
+    border-radius: 50px;
+    color: black;
   }
 </style>

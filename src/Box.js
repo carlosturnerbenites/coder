@@ -4,6 +4,8 @@ export default class Box {
     this.y = y;
     this.type = type;
 
+    this.gifts = [];
+
     this.TYPES = {
       FREE: 'free',
       OBSTACLE: 'obstacle'
@@ -24,6 +26,12 @@ export default class Box {
   isObstacle () {
     if (this.type !== this.TYPES.FREE) return true
     return false
+  }
+  addGift (points) {
+    this.gifts.push(points)
+  }
+  getGift () {
+    return this.gifts.pop()
   }
 
 }

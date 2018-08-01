@@ -8,7 +8,7 @@
     <div
       v-for="(row, index) in board.matrix"
       :key="`height_${index}`"
-      class="row"
+      class="row d-flex"
     >
       <div
         v-for="(box, index) in row"
@@ -28,6 +28,8 @@
     <Button type="primary" @click="turnLeft"> Derecha </Button>
     <Button type="primary" @click="turnRight"> Izquierda </Button>
     <Button type="primary" @click="forward"> Adelante </Button>
+    <Button type="primary" @click="collect"> Recoger </Button>
+    <Button type="primary" @click="evaluate"> Evaluar Escenario </Button>
 
     <div>
       <ul>
@@ -43,6 +45,21 @@
         </li>
       </ul>
     </div>
+
+    <div>
+      <ul v-if="scene">
+        <li
+          v-for="(rule, index) in scene.rules"
+          :class="{complete: rule.complete, incomplete: !rule.complete}"
+          :key="`rule_${index}`"
+        >
+          {{rule.name}}
+          <span v-if="rule.name === 'arrive'">
+            {{rule.position}}
+          </span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -52,6 +69,7 @@ import Box from './Box.vue'
 // import Robot from './Robot.vue'
 
 import Board from './../Board.js'
+import Scene from './../Scene.js'
 
 export default {
   name: 'Board',
@@ -67,41 +85,77 @@ export default {
   },
   data () {
     return {
-      board: new Board(this.height, this.width)
+      board: new Board(this.height, this.width),
+      scene: null,
+      scenes: {
+        default: new Scene({
+          obstacles: [[1,1], [1,2], [2,2], [3,5], [4,2]],
+          gifts: [[1,3, 20], [3,4, 30]],
+          rules: [
+            {name: 'arrive', position: {x:1, y:3}},
+            {name: 'movements:min', q: 2},
+            {name: 'movements:max', q: 10},
+            {name: 'movements:between', min: 2, max: 10},
+            {name: 'route', route: [
+              {position: {x:1, y:3}, action: 'arrive'},
+              {position: {x:1, y:3}, action: 'collect'},
+              {position: {x:4, y:4}, action: 'arrive'},
+            ]}
+          ]
+        })
+      }
     }
   },
   methods: {
     onClickBox (box) {
     },
+    collect () {
+      this.board.collect()
+    },
+    evaluate () {
+      this.board.evaluate()
+    },
     forward () {
+      let playload = {
+        action: 'forward',
+        position: {},
+        canont: false
+      }
       if (this.board.canForward()) {
+        playload.position.before = this.board.robot.getPosition()
         this.board.robot.forward()
-        this.board.history.push({action: 'forward', canont: false})
+        playload.position.after = this.board.robot.getPosition()
+        this.board.history.push(playload)
       } else {
-        this.board.history.push({action: 'forward', canont: true})
+        playload.canont = true
+        this.board.history.push(playload)
       }
     },
     turnLeft () {
-      let playLoad = {
+      let playload = {
         action: 'turn',
         orientation: {},
         canont: false
       }
-      playLoad.orientation.before = this.board.robot.orientation
+      playload.orientation.before = this.board.robot.orientation
       this.board.robot.turnLeft()
-      playLoad.orientation.after = this.board.robot.orientation
-      this.board.history.push(playLoad)
+      playload.orientation.after = this.board.robot.orientation
+      this.board.history.push(playload)
     },
     turnRight () {
-      let playLoad = {
+      let playload = {
         action: 'turn',
         orientation: {},
         canont: false
       }
-      playLoad.orientation.before = this.board.robot.orientation
+      playload.orientation.before = this.board.robot.orientation
       this.board.robot.turnRight()
-      playLoad.orientation.after = this.board.robot.orientation
-      this.board.history.push(playLoad)
+      playload.orientation.after = this.board.robot.orientation
+      this.board.history.push(playload)
+    },
+    loadScene (scene) {
+      this.scene = scene
+      this.board.loadScene(scene)
     }
   },
   components: {
@@ -109,7 +163,7 @@ export default {
   },
   mounted () {
     // this.board.robot.to(1,2)
-    this.board.setObstacles([[1,1], [1,2], [2,2], [3,5], [4,2]])
+    this.loadScene(this.scenes.default)
   },
 }
 </script>
@@ -121,5 +175,8 @@ export default {
 }
 .canont {
   text-decoration: line-through;
+}
+.complete {
+  background-color: green;
 }
 </style>

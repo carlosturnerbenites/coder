@@ -8,6 +8,7 @@ export default class Robot {
     this.x = x;
     this.y = y;
     this.orientation = this.UP
+    this.gifts = []
 
     /*
       // orientacion
@@ -28,6 +29,12 @@ export default class Robot {
   }
   back () {
     // atras
+  }
+  getPosition () {
+    return {
+      x: this.x,
+      y: this.y
+    }
   }
   getPositionForward () {
     let position = {}
@@ -50,6 +57,9 @@ export default class Robot {
     }
 
     return position
+  }
+  collect () {
+    let position = this.getPosition()
   }
   forward () {
     let position = this.getPositionForward()
@@ -77,6 +87,8 @@ export default class Robot {
     if (this.orientation === 90) return '&#8593'
     if (this.orientation === 270) return '&#8595'
   }
-
+  addGift (gift) {
+    this.gifts.push(gift)
+  }
 
 }
