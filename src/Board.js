@@ -14,8 +14,12 @@ export default class Board {
 
     this.matrix = []
 
+    this.withPowerUps = false
+
     this.generateMatrix()
   }
+  enablePowerUps (){ this.withPowerUps = true }
+  disablePowerUps (){ this.withPowerUps = false }
   toString () {
     return this.height + ' x ' + this.width;
   }
@@ -50,7 +54,7 @@ export default class Board {
     let position = this.robot.getPositionForward()
     try {
       let box = this.getBox(position)
-      if (box.robotCanBeHere()) return true
+      if (box.robotCanBeHere() || this.robot.can('climb')) return true
       return false
     } catch (error) {
       console.warn(error)

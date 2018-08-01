@@ -40,7 +40,7 @@
     </div>
 
     <Row>
-        <Col span="8">
+        <Col span="6">
           <h4>Historial</h4>
           <div>
             <ul>
@@ -57,7 +57,7 @@
             </ul>
           </div>
         </Col>
-        <Col span="8">
+        <Col span="6">
           <h4>Escenario</h4>
           <div>
             <ul v-if="scene">
@@ -74,7 +74,7 @@
             </ul>
           </div>
         </Col>
-        <Col span="8">
+        <Col span="6">
           <h4>Plan</h4>
           <div>
             <ul v-if="plan">
@@ -87,6 +87,19 @@
               </li>
             </ul>
           </div>
+        </Col>
+        <Col span="6">
+          <h4>Power Ups</h4>
+          <ul>
+            <li
+              v-for="(powerUp, name) in powerUps"
+              :key="`power_up_${name}`"
+            >
+              <Checkbox
+                @on-change="value => setStatePowerUp(powerUp, value)"
+              >{{ name }}</Checkbox>
+            </li>
+          </ul>
         </Col>
     </Row>
 
@@ -101,6 +114,7 @@ import Box from './Box.vue'
 import Board from './../Board.js'
 import Scene from './../Scene.js'
 import Plan from './../Plan.js'
+import PowerUp from './../PowerUp.js'
 
 export default {
   name: 'Board',
@@ -119,7 +133,7 @@ export default {
       board: new Board(this.height, this.width),
       scene: null,
       plan: null,
-      toPlan: true,
+      toPlan: false,
       scenes: {
         default: new Scene({
           obstacles: [[1,1], [1,2], [2,2], [3,4], [4,2]],
@@ -168,11 +182,21 @@ export default {
             {action: 'forward'},
           ]
         })
+      },
+      powerUps: {
+        climb: new PowerUp('climb')
       }
     }
   },
   methods: {
     onClickBox (box) {
+    },
+    setStatePowerUp (powerUp, state) {
+      if (state) {
+        this.board.robot.enablePowerUp(powerUp)
+      } else {
+        this.board.robot.disablePowerUp(powerUp)
+      }
     },
     collect () {
       if (this.toPlan) {
@@ -219,6 +243,8 @@ export default {
   },
   mounted () {
     // this.board.robot.to(1,2)
+    this.board.enablePowerUps()
+    // this.board.robot.enablePowerUp(this.powerUps.climb)
     this.loadScene(this.scenes.default)
     this.plan = this.plans.default
 

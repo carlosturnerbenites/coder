@@ -10,6 +10,8 @@ export default class Robot {
     this.orientation = typeof orientation === 'number' ? orientation : this.UP
     this.gifts = []
 
+    this.powerUps = {}
+
     /*
       // orientacion
       // left : 90 -> 0 -> 270 -> 180 -> 90
@@ -22,6 +24,24 @@ export default class Robot {
   }
   toString () {
     return '(' + this.x + ', ' + this.y + ')';
+  }
+  enablePowerUp (powerUp) {
+    this.powerUps[powerUp.name] = powerUp
+  }
+  disablePowerUp (powerUp) {
+    let name
+    if (typeof powerUp === 'string') {
+      name = powerUp
+    } else if (typeof powerUp === 'object') {
+      name = powerUp.name
+    } else {
+      throw new Error('invalid type data powerUp')
+    }
+    delete this.powerUps[name]
+  }
+  can (action) {
+    if ( this.powerUps[action] !== undefined) return true
+    return false
   }
   to (x, y) {
     this.x = x
