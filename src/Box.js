@@ -15,7 +15,6 @@ export default class Box {
   }
 
   robotCanBeHere () {
-    console.log(`${this.type} === ${this.TYPES.FREE}`, this.type === this.TYPES.FREE)
     if (this.type === this.TYPES.FREE) return true
     return false
   }

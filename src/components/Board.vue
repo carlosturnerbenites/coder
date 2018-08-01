@@ -2,8 +2,8 @@
   <div
     class="board"
     @keyup.up="forward"
-    @keyup.left="board.robot.turnLeft()"
-    @keyup.right="board.robot.turnRight()"
+    @keyup.left="turnLeft()"
+    @keyup.right="turnRight()"
   >
     <div
       v-for="(row, index) in board.matrix"
@@ -25,9 +25,24 @@
       </div>
     </div>
 
-    <Button type="primary" @click="board.robot.turnLeft()"> Derecha </Button>
-    <Button type="primary" @click="board.robot.turnRight()"> Izquierda </Button>
+    <Button type="primary" @click="turnLeft"> Derecha </Button>
+    <Button type="primary" @click="turnRight"> Izquierda </Button>
     <Button type="primary" @click="forward"> Adelante </Button>
+
+    <div>
+      <ul>
+        <li
+          v-for="(item, index) in board.history"
+          :class="{canont: item.canont}"
+          :key="`index_${index}`"
+        >
+          {{item.action}}
+          <span v-if="item.action === 'turn'">
+            {{item.orientation.after}}
+          </span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -43,11 +58,11 @@ export default {
   props: {
     height: {
       type: Number,
-      default: 10
+      default: 5
     },
     width: {
       type: Number,
-      default: 10
+      default: 5
     }
   },
   data () {
@@ -59,10 +74,34 @@ export default {
     onClickBox (box) {
     },
     forward () {
-      console.log('forward')
       if (this.board.canForward()) {
         this.board.robot.forward()
+        this.board.history.push({action: 'forward', canont: false})
+      } else {
+        this.board.history.push({action: 'forward', canont: true})
       }
+    },
+    turnLeft () {
+      let playLoad = {
+        action: 'turn',
+        orientation: {},
+        canont: false
+      }
+      playLoad.orientation.before = this.board.robot.orientation
+      this.board.robot.turnLeft()
+      playLoad.orientation.after = this.board.robot.orientation
+      this.board.history.push(playLoad)
+    },
+    turnRight () {
+      let playLoad = {
+        action: 'turn',
+        orientation: {},
+        canont: false
+      }
+      playLoad.orientation.before = this.board.robot.orientation
+      this.board.robot.turnRight()
+      playLoad.orientation.after = this.board.robot.orientation
+      this.board.history.push(playLoad)
     }
   },
   components: {
@@ -70,7 +109,7 @@ export default {
   },
   mounted () {
     // this.board.robot.to(1,2)
-    this.board.setObstacles([[1,1], [1,2], [2,2], [3,5], [7,2]])
+    this.board.setObstacles([[1,1], [1,2], [2,2], [3,5], [4,2]])
   },
 }
 </script>
@@ -79,5 +118,8 @@ export default {
 .board {
   .row {
   }
+}
+.canont {
+  text-decoration: line-through;
 }
 </style>

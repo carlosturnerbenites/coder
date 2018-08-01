@@ -25,10 +25,14 @@ export default {
 </script>
 
 <style lang="scss">
-  .box {
-    width: 50px;
-    height: 50px;
-    display: inline-block;
-    border: 1px solid gray;
+  .robot {
+    background-color: gray;
+    font-size: 26px;
+    color: white;
+    font-weight: bold;
+    width: 40px;
+    height: 40px;
+    border-radius: 50px;
+    text-align: center;
   }
 </style>

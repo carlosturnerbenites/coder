@@ -8,6 +8,8 @@ export default class Board {
 
     this.robot = new Robot(0, 0);
 
+    this.history = []
+
     this.matrix = []
 
     this.generateMatrix()
