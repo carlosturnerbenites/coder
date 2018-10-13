@@ -156,22 +156,19 @@ export default {
       plans: {
         default: new Plan({
           movements: [
+            // {action: 'repeat', count: 3, fn: 'forward'},
+
+            {action: 'forward'},
+            {action: 'turnLeft'},
+            {action: 'if', condition: 'canForward', fn: 'forward'},
+            {action: 'if', condition: 'existsObject', fn: 'collect'},
+            {action: 'if', condition: 'orientationIs', value: 0, fn: 'collect'},
+
+            // {action: 'forward'},
+            // {action: 'forward'},
+            // {action: 'forward'},
+
             /*
-            {
-              action: 'while',
-              // condition: 'ORIENTATION !== 0',
-              condition: {prop: 'orientation', op: 'diff', value: 270},
-              fn: 'turnRight'
-            },
-            */
-            // {action: 'if', condition: 'ORIENTATION !== 0', fn: 'forward'},
-
-            {action: 'repeat', count: 3, fn: 'forward'},
-
-            // {action: 'forward'},
-            // {action: 'forward'},
-            // {action: 'forward'},
-
             {action: 'turnLeft'},
             {action: 'forward'},
             {action: 'collect'},
@@ -180,6 +177,7 @@ export default {
             {action: 'forward'},
             {action: 'turnRight'},
             {action: 'forward'},
+            */
           ]
         })
       },

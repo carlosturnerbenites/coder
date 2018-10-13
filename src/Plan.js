@@ -38,7 +38,8 @@ export default class Plan {
           time += baseTime
         }
         window.setTimeout(() => { movement.executed = true }, time)
-      } else if (movement.action === 'while') {
+      /*
+      else if (movement.action === 'while') {
         let condition
         if (movement.condition.op === 'diff') {
           console.log('movement.condition.prop', board.robot[movement.condition.prop])
@@ -57,6 +58,18 @@ export default class Plan {
           time += baseTime
           if (countLoops > 50) break
           countLoops += 1
+        }
+      */
+      } else if (movement.action === 'if') {
+        if (movement.condition === 'canForward') {
+          window.setTimeout(() => {
+            if (board.canForward()) {
+              board.forward()
+              movement.executed = true
+            }
+          }, time)
+        } else if (movement.condition === 'existsObject') {
+        } else if (movement.condition === 'orientationIs') {
         }
       } else if (movement.action === 'collect') {
         window.setTimeout(() => {

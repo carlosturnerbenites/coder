@@ -1,6 +1,7 @@
 import Box from './Box.js'
 import Robot from './Robot.js'
 import Gift from './Gift.js'
+import History from './History.js'
 
 export default class Board {
   constructor(height, width) {
@@ -9,6 +10,7 @@ export default class Board {
 
     this.robot = new Robot(0, 0, 0);
 
+    // this.history = new History()
     this.history = []
     this.scene = null
 
